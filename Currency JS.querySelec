@@ -1,0 +1,37 @@
+const fromCurrency = document.querySelector("#fromCurrency");
+const toCurrency = document.querySelector("#toCurrency");
+const amountInput = document.querySelector(".amount input");
+const exchangeRateTxt = document.querySelector(".exchange-rate");
+const getButton = document.querySelector("#getBtn");
+
+// You can get a free key from exchange-rate-api.com
+const API_URL = "https://open.er-api.com/v6/latest/";
+
+async function getExchangeRate() {
+    const amountVal = amountInput.value;
+    if (amountVal === "" || amountVal === "0") {
+        amountInput.value = "1";
+    }
+    
+    exchangeRateTxt.innerText = "Getting rate...";
+    
+    try {
+        const response = await fetch(`${API_URL}${fromCurrency.value}`);
+        const result = await response.json();
+        
+        const rate = result.rates[toCurrency.value];
+        const totalAmount = (amountVal * rate).toFixed(2);
+        
+        exchangeRateTxt.innerText = `${amountVal} ${fromCurrency.value} = ${totalAmount} ${toCurrency.value}`;
+    } catch (error) {
+        exchangeRateTxt.innerText = "Something went wrong. Try again.";
+    }
+}
+
+getButton.addEventListener("click", e => {
+    e.preventDefault();
+    getExchangeRate();
+});
+
+// Load default rate on page open
+window.addEventListener("load", getExchangeRate);
